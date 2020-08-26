@@ -1,8 +1,0 @@
-**/*.o
-.flavor
-.objs
-*.so
-assets.h
-*.pem
-tmp_files
-**/*.DS_Store
