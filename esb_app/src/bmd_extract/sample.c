@@ -4,7 +4,7 @@
 #include<string.h>
 #include "xml.h"
 
-/*gcc `xml2-config --cflags --libs` test.c*/
+/*gcc `xml2-config --cflags --libs` sample.c*/
 
 bmdMessage bm ;
     char * Payload;
