@@ -1,13 +1,35 @@
 int process_esb_request(char* bmd_file_path);
 
-typedef struct {
-    char* sender_id;
-    char* destination_id;
-    char* message_type;
-    // TODO: Other fields
-} bmd_envelop;
 
-typedef struct {
-    bmd_envelop envelop;
-    char* payload;
+typedef struct 
+{
+    char  *MessageID;
+    char  *MessageType;
+    char  *Sender;
+    char * Destination;
+    char *CreationDateTime;
+    char  *Signature;
+    char  *ReferenceID;
+}bmd_envelope;
+
+
+typedef struct 
+{
+  bmd_envelope * envelope;
+  char * Payload;
 } bmd;
+
+
+
+extern bmd_envelope *  extract_envelope(char * filepath);
+extern char * extract_payload(char * filepath);
+extern int validate_bmd_request (bmd * bmd_file);
+const char * attributes[] =  {
+    "MessageID",
+    "MessageType",
+    "Sender",
+    "Destination",
+    "CreationDateTime",
+    "Signature",
+    "ReferenceID"
+};
