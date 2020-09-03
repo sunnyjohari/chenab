@@ -1,14 +1,29 @@
-typedef struct bmdMessage_
+// header file
+
+
+typedef struct 
 {
-    char   * Message;
-    char  *Sender;
-    char * Destination;
     char  *MessageID;
     char  *MessageType;
+    char  *Sender;
+    char * Destination;
     char *CreationDateTime;
     char  *Signature;
     char  *ReferenceID;
-}bmdMessage;
+}bmd_envelope;
+
+
+typedef struct 
+{
+  bmd_envelope * envelope;
+  char * Payload;
+} bmd;
+
+
+
+extern bmd_envelope *  extract_envelope(char * filepath);
+extern char * extract_payload(char * filepath);
+extern int validate_bmd_request (bmd * bmd_file);
 const char * attributes[] =  {
     "MessageID",
     "MessageType",
