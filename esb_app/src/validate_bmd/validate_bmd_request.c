@@ -18,6 +18,7 @@
 *    larger than 5MB may not be allowed, or are allowed only for certain senders and message
 *    types, etc. 
 */
+
 bool validate_bmd_request(char * filepath)
 {
     bmd  * bd = (bmd*) malloc (sizeof(bmd));
@@ -29,8 +30,9 @@ bool validate_bmd_request(char * filepath)
                                            bd->envelope->Destination,bd->envelope->MessageType);
         if(id > 0 ){
           if(check_id_in_transform_config(id) &&  check_id_in_transport_config(id)){
+             if(strlen(bd->Payload) <= (5*1024*1024) ) {
                return true;
-            // TODO : check payload data <= 5MB
+             }
           }
         }     
     }
@@ -43,9 +45,13 @@ int main()
 {
 
     char  * filepath= "/home/bpavan/bmd_extract/dum.xml";
-    if(validate_bmd_request(filepath)){
-      printf("request validated\n");
-    }
+    bmd  * bd = (bmd*) malloc (sizeof(bmd));
+    bd->envelope=  extract_envelope(filepath);
+    bd->Payload= extract_payload(filepath);
+    printf("%d\n",insert_to_esb_request ( bd->envelope->Sender, bd->envelope->Destination, bd->envelope->MessageType,      \
+                   bd->envelope->ReferenceID, bd->envelope->MessageID,bd->envelope->CreationDateTime,    \
+                   "","received",""));
+     validate_bmd_request(filepath)? printf("yes\n"):printf("no\n");
                               
     return 0;
 }
