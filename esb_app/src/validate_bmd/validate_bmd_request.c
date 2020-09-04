@@ -29,9 +29,8 @@ bool validate_bmd_request(char * filepath)
                                            bd->envelope->Destination,bd->envelope->MessageType);
         if(id > 0 ){
           if(check_id_in_transform_config(id) &&  check_id_in_transport_config(id)){
-             if(strlen(bd->Payload) <= (5*1024*1024) ) {
                return true;
-             }
+            // TODO : check payload data <= 5MB
           }
         }     
     }
