@@ -9,9 +9,10 @@
 
 #include <stdio.h>
 #include <libxml/parser.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include<string.h>
 #include "xml.h"
+#include<errno.h>
 
 
 
@@ -275,6 +276,43 @@ int validate_xml_file( bmd * bmd_file)
   return 1;
 }
 
+
+/* @ brief creating JSON file 
+ * @ param  file path
+ * @ return json file name
+ */
+
+char* xml_to_json ( char * filepath){
+
+  /* excluding the path of the directory and assigning filepath as name of the xml file*/
+  if(strchr(filepath,'/'))
+  {
+     char * buf = strtok(filepath, "/");
+     while( buf != NULL ) {
+      buf= strtok(NULL, "/");
+      if(buf!=NULL)
+          filepath = buf;
+     }
+  }
+
+  /* extracting payload information*/
+  char * payload = extract_payload(filepath);
+
+  /* assigning memoryfor JSON file*/
+  char * file_name = malloc(((strlen("payload_") + strlen(filepath)-4)+1)* sizeof(char));
+
+  /* creating .json file*/
+  sprintf(file_name,"payload_%s.json",strtok(filepath,"."));
+
+  FILE *fp = fopen(file_name,"w");
+    if(fp == NULL) {
+        printf("fopen failed, errno = %d\n", errno);
+    }
+    fprintf(fp,"{\n \"Payload\":\"%s\"\n}",payload);
+    return strdup(file_name);
+ 
+ }   
+
 /*
 int main()
 {
@@ -284,10 +322,12 @@ int main()
     bmd  * bd = (bmd*) malloc (sizeof(bmd));
     bd->envelope=  extract_envelope(filepath);
     bd->Payload= extract_payload(filepath);
-    validate_bmd_request(bd)? printf("1"): printf("2");
+    validate_xml_file(bd)? printf("1"): printf("2");
     printf("\n");
+    printf("%s",xml_to_json(filepath));
     return 0;
 }
+
 */
 
 
