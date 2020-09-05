@@ -1,5 +1,10 @@
 // header file
 
+
+#ifndef CONNECTION_H
+#define CONNECTION_H
+#include <stdbool.h>
+#include <stddef.h>
 #define STRING_SIZE 500
 
 /**
@@ -10,14 +15,28 @@
  */
 
 
-const char *server = "localhost";
-const char *user = "root";
-const char *password = "Pavan1999@"; /*password is not set in this example*/
-const char *database = "esb_db";
+bool check_id_in_transform_config(int route_id);
+bool check_id_in_transport_config(int route_id);
+int active_routes_from_source(char * message, char * destination, char * message_type);
+int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_type,      \
+                   char * reference_id, char * message_id,char * received_on,char * data_location, \
+                   char * status,char * status_details);
+void select_status_of_route_id(char * status); 
+void select_transport_config(int roue_id);
 
-const unsigned int port = 3306; /*port number*/
-const char * unix_socket = NULL; /*unix socket*/
-const unsigned int flag = 0; /*last parameter to mysql_real_connect*/
+
+static char *server ;
+static  char *user ;
+static char *password ; /*password is not set in this example*/
+static char *database ;
+
+static  unsigned int port ; /*port number*/
+static char * unix_socket ; /*unix socket*/
+static  unsigned int flag ; /*last parameter to mysql_real_connect*/
+
+
+
+
 
 
 
@@ -28,11 +47,5 @@ const unsigned int flag = 0; /*last parameter to mysql_real_connect*/
  * 
  * @param con database connection handle
  */
-void finish_with_error(MYSQL *con) {
 
-  fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
-  mysql_close(con);
-
-  exit(1);        
-}
-
+#endif

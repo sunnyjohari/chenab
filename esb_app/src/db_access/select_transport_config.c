@@ -1,24 +1,42 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include "connection.h"
 
-#define SELECT_SAMPLE "SELECT * FROM transport_config WHERE route_id= ?" 
+#define SELECT_SAMPLE "SELECT * FROM transport_config WHERE id= ?" 
 
-void select_transport_config(int roue_id){
+void finish_with_error(MYSQL *con) {
+
+  fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
+  mysql_close(con);
+
+  exit(1);
+}
+
+void select_transport_config(int route_id){
 
  MYSQL_STMT    *stmt;
  MYSQL_BIND    input_bind[1];
  unsigned long input_length[2];
- MYSQL_BIND    bind[0];
+ MYSQL_BIND    bind[4];
  MYSQL_RES     *prepare_meta_result;
  MYSQL_TIME    ts;
  unsigned long length[4];
  int           param_count, column_count, row_count;
- int           small_data[2];
+ int           small_data;
+ int           big_data;
  int           int_data;
  char          str_data[2][STRING_SIZE];
+ bool       is_null[3];
+ server = "localhost";
+ user = "root";
+ password = "Pavan1999@"; /*password is not set in this example*/
+ database = "esb_db";
+
+ port = 3306; /*port number*/
+ unix_socket = NULL; /*unix socket*/
+ flag = 0; /*last parameter to mysql_real_connect*/
 
  MYSQL *mysql = mysql_init(NULL);
 
@@ -118,61 +136,64 @@ int id;
 
  /* SENDER COLUMN */
  bind[0].buffer_type= MYSQL_TYPE_LONG;
- bind[0].buffer= (char *)small_data[0];
+ bind[0].buffer= (char *)&small_data;
  bind[0].is_null= 0;
  bind[0].length= &length[0];
+
+
+ 
+
  
  /* DESTINATION COLUMN */
- bind[1].buffer_type= MYSQL_TYPE_STRING;
- bind[1].buffer= (char *)small_data[1];
- bind[1].is_null= 0;
+ bind[1].buffer_type= MYSQL_TYPE_LONG;
+ bind[1].buffer= (char *)&big_data;
+ bind[1].is_null= &is_null[1];
  bind[1].length= &length[1];
  
  /* SMALLINT COLUMN */
  bind[2].buffer_type= MYSQL_TYPE_STRING;
- bind[2].buffer= (char *)&str_data[0];       
- bind[2].is_null=0;
+ bind[2].buffer= (char *)str_data[0];       
+ bind[2].is_null=&is_null[1];
  bind[2].length= &length[2];
  bind[2].buffer_length= STRING_SIZE;
  
  
- /* SMALLINT COLUMN */
  bind[2].buffer_type= MYSQL_TYPE_STRING;
- bind[2].buffer= (char *)&str_data[1];       
- bind[2].is_null=0;
+ bind[2].buffer= (char *)str_data[1];       
+ bind[2].is_null=&is_null[1];
  bind[2].length= &length[3];
  bind[2].buffer_length= STRING_SIZE;
 
- /* Bind the result buffers */
- if (mysql_stmt_bind_result(stmt, bind))
- {
+ //* Bind the result buffers */
+if (mysql_stmt_bind_result(stmt, bind))
+{
   fprintf(stderr, " mysql_stmt_bind_result() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
   exit(0);
- }
+}
 
- /* Now buffer all results to client */
- if (mysql_stmt_store_result(stmt))
- {
+/* Now buffer all results to client */
+if (mysql_stmt_store_result(stmt))
+{
   fprintf(stderr, " mysql_stmt_store_result() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
   exit(0);
- }
-
+}
  /* Fetch all rows */
  row_count= 0;
  fprintf(stdout, "Fetching results ...\n\n");
  printf("Header--> id   route_id    config_key     config_value\n");
  while (!mysql_stmt_fetch(stmt))
  {
-
+  printf("yess\n");
   row_count++;
   fprintf(stdout, "  row %d\t", row_count);
   /* column 1 */
-    fprintf(stdout, " %d\t", small_data[0]);
+
+    fprintf(stdout, " %d\t", small_data);
 
   /* column 2 */
-    fprintf(stdout, "     %d\t", small_data[1]);
+    fprintf(stdout, "     %d\t", big_data);
 
   /* column 3 */
     printf("   %s\t", str_data[0]);
@@ -200,8 +221,8 @@ int id;
 }
 
 int main(int argc, char **argv) {
-   int route_id=1;
-   select_transport_config(route_id);
+   int route_id=15;
+   select_transport_config(1);
    return 0;
 }   
 
