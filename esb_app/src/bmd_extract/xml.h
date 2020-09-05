@@ -20,7 +20,7 @@ typedef struct
 typedef struct 
 {
   bmd_envelope * envelope;
-  char * Payload;
+  char * payload;
 } bmd;
 
 
@@ -28,6 +28,8 @@ typedef struct
 bmd_envelope *  extract_envelope(char * filepath);
 char * extract_payload(char * filepath);
 int validate_xml_file (bmd * bmd_file);
+bmd * parse_bmd_xml(char * filepath);
+
 /*char * attributes[7] =  {
     "MessageID",
     "MessageType",

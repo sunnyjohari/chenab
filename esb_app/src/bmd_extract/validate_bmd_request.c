@@ -3,7 +3,7 @@
 #include<stdbool.h>
 #include "xml.h"
 #include <string.h>
-#include "connection.h"
+#include "../db_access/connection.h"
 
 /* @ brief : validating bmd request
 *  input : filepath output yes/no
@@ -23,14 +23,14 @@ bool validate_bmd_request(char * filepath)
 {
     bmd  * bd = (bmd*) malloc (sizeof(bmd));
     bd->envelope=  extract_envelope(filepath);
-    bd->Payload= extract_payload(filepath);
+    bd->payload= extract_payload(filepath);
 
     if(validate_xml_file(bd)){
         int id =active_routes_from_source(bd->envelope->Sender,
                                            bd->envelope->Destination,bd->envelope->MessageType);
         if(id > 0 ){
           if(check_id_in_transform_config(id) &&  check_id_in_transport_config(id)){
-             if(strlen(bd->Payload) <= (5*1024*1024) ) {
+             if(strlen(bd->payload) <= (5*1024*1024) ) {
                return true;
              }
           }
@@ -40,18 +40,90 @@ bool validate_bmd_request(char * filepath)
 }
 
 
+int validate_xml_file( bmd * bmd_file)
+{
+  /* MessageID */
+  if(bmd_file->envelope->MessageID  == NULL) {
+    fprintf(stderr,"Message ID doesnot exist in bmd");
+    return 0;
+  }
+
+  /* MessageType */
+  if(bmd_file->envelope->MessageType == NULL) {
+    fprintf(stderr,"Message Type doesnot exist in bmd");
+    return 0;
+  }
+
+  /* Sender */
+  if(bmd_file->envelope->Sender == NULL) {
+    fprintf(stderr,"Sender doesnot exist in bmd");
+    return 0;
+  }
+
+
+  /* Destination */
+  if(bmd_file->envelope->Destination == NULL) {
+    fprintf(stderr,"Destination doesnot exist in bmd");
+    return 0;
+  }
+
+
+  /* CreationDateTime */
+  if(bmd_file->envelope->CreationDateTime == NULL) {
+    fprintf(stderr,"CreationDateTime doesnot exist in bmd");
+    return 0;
+  }
+
+
+  /* Signature */
+  if(bmd_file->envelope->Signature == NULL) {
+    fprintf(stderr,"Signature doesnot exist in bmd");
+    return 0;
+  }
+
+  /* ReferenceID */
+  if(bmd_file->envelope->ReferenceID == NULL) {
+      fprintf(stderr,"ReferenceID doesnot exist in bmd");
+      return 0;
+  }
+
+  /* payload */
+  if(bmd_file->payload == NULL) {
+    fprintf(stderr,"Payload doesnot exist in bmd");
+    return 0;
+  }
+
+  return 1;
+}
+
+
+/**
+ * TODO: This is to be implemented separately.
+ */
+bmd * parse_bmd_xml(char * filepath)
+{
+   bmd  * bd = (bmd*) malloc (sizeof(bmd));
+   bd->envelope=  extract_envelope(filepath);
+   bd->payload= extract_payload(filepath);
+   return bd;
+}
+
+
+
+
+
+
 
 int main()
 {
 
     char  * filepath= "/home/bpavan/bmd_extract/dum.xml";
     bmd  * bd = (bmd*) malloc (sizeof(bmd));
-    bd->envelope=  extract_envelope(filepath);
-    bd->Payload= extract_payload(filepath);
+    bd = parse_bmd_xml(filepath);
     printf("%d\n",insert_to_esb_request ( bd->envelope->Sender, bd->envelope->Destination, bd->envelope->MessageType,      \
                    bd->envelope->ReferenceID, bd->envelope->MessageID,bd->envelope->CreationDateTime,    \
                    "","received",""));
-     validate_bmd_request(filepath)? printf("yes\n"):printf("no\n");
+     validate_bmd_request(filepath)? printf("\nyes valid \n"):printf("NOT valid\n");
                               
     return 0;
 }

@@ -97,6 +97,7 @@ void extract_envelope_utils(xmlNode * node, bmd_envelope * bm)
                 /* CreationDateTime*/
                 else if((strcmp(((char *) node->name),attributes[4]))==0)
 	              {
+                  printf("yes\n");
 		               bm->CreationDateTime =  (char *)malloc((n+1)* sizeof(char));
                    strcpy(bm->CreationDateTime ,(char *)xmlNodeGetContent(node));
                    if(strcmp(bm->CreationDateTime, "") ==0){
@@ -220,6 +221,8 @@ char * extract_payload(char * filepath)
  * else return 0
 */
 
+# if 0
+
 int validate_xml_file( bmd * bmd_file)
 {
   /* MessageID */
@@ -268,14 +271,14 @@ int validate_xml_file( bmd * bmd_file)
   }
 
   /* payload */
-  if(bmd_file->Payload == NULL) {
+  if(bmd_file->payload == NULL) {
     fprintf(stderr,"Payload doesnot exist in bmd");
     return 0;
   }
 
   return 1;
 }
-
+ #endif
 
 /* @ brief creating JSON file 
  * @ param  file path
@@ -284,7 +287,7 @@ int validate_xml_file( bmd * bmd_file)
 
 char* xml_to_json ( char * filepath){
 
-  /* excluding the path of the directory and assigning filepath as name of the xml file*/
+/* excluding the path of the directory and assigning filepath as name of the xml file*/
   if(strchr(filepath,'/'))
   {
      char * buf = strtok(filepath, "/");
@@ -313,15 +316,15 @@ char* xml_to_json ( char * filepath){
  
  }   
 
+
+
 /*
 int main()
 {
 
-    char  filepath[50];
-    scanf("%s",filepath);
+    char  filepath[50] = "/home/bpavan/bmd_extract/dum.xml";
     bmd  * bd = (bmd*) malloc (sizeof(bmd));
-    bd->envelope=  extract_envelope(filepath);
-    bd->Payload= extract_payload(filepath);
+    bd= parse_bmd_xml(filepath);
     validate_xml_file(bd)? printf("1"): printf("2");
     printf("\n");
     printf("%s",xml_to_json(filepath));
@@ -329,5 +332,4 @@ int main()
 }
 
 */
-
 

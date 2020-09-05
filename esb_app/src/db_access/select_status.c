@@ -7,15 +7,7 @@
 
 #define SELECT_SAMPLE "SELECT * FROM esb_request WHERE status= ?" 
 
-void finish_with_error(MYSQL *con) {
-
-  fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
-  mysql_close(con);
-
-  exit(1);        
-}
-
-void select_status_of_route_id(char * status){
+void select_status(char * status){
  
  MYSQL_STMT    *stmt;
  MYSQL_RES     *prepare_meta_result;
@@ -30,14 +22,6 @@ void select_status_of_route_id(char * status){
  unsigned long str_length[10];
  bool          is_null[2];
  
- server = "localhost";
- user = "root";
- password = "Pavan1999@"; /*password is not set in this example*/
- database = "esb_db";
-
- port = 3306; /*port number*/
- unix_socket = NULL; /*unix socket*/
- flag = 0; /*last parameter to mysql_real_connect*/
 
 
  MYSQL *mysql = mysql_init(NULL);
@@ -53,7 +37,7 @@ void select_status_of_route_id(char * status){
   /* Check if connection is 
    * properly established.
    */
-  if (mysql_real_connect(mysql, server, user, password,database,0,NULL,0) == NULL) {
+  if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
       finish_with_error(mysql);
   }    
 
@@ -291,11 +275,9 @@ void select_status_of_route_id(char * status){
  mysql_close(mysql);    
 }
 
-
-
 int main(int argc, char **argv) {
-   char * status="received";
-   select_status_of_route_id(status);
+   char * status="wewww";
+   select_status(status);
    return 0;
 }   
 

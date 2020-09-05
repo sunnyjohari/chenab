@@ -1,15 +1,9 @@
-
-/*Required C standard libraries*/
-
 #include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-/* Contains necessary C functions of mysql */
 #include <mysql/mysql.h>
-
-/* C standard macro and library for handling datetime*/
-#include <time.h>
+#include<stdlib.h>
+#include<string.h>
 #include "connection.h"
+#include<time.h>
 
 
 #define INSERT_SAMPLE "INSERT INTO                                  \
@@ -23,9 +17,18 @@ esb_request(id,sender_id,dest_id,message_type,reference_id,     \
 message_id,data_location,status,status_details)              \
 VALUES(?,?,?,?,?,?,?,?,?)"
 
-int  insert_to_esb_request ( char * sender_id, char * dest_id, char * message_type,      \
+
+void finish_with_errors(MYSQL *con) {
+
+  fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
+  mysql_close(con);
+
+}
+
+int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_type,      \
                    char * reference_id, char * message_id,char * received_on,char * data_location, \
                    char * status,char * status_details){
+                   
                    
  MYSQL_STMT    *stmt;
  MYSQL_BIND    bind[10];
@@ -38,45 +41,21 @@ int  insert_to_esb_request ( char * sender_id, char * dest_id, char * message_ty
  bool          is_null[2];
  int col=9;
 
- char *server = "localhost";
- char *user = "root";
- char *password = "Pavan1999@"; /*password is not set in this example*/
- char *database = "esb_db";
- unsigned int port = 3306; /*port number*/
- char * unix_socket = NULL; /*unix socket*/
- unsigned int flag = 0; /*last parameter to mysql_real_connect*/
+ MYSQL *conn = mysql_init(NULL);
 
-
-
-  /**
-   * @brief Allocates and initialises a MYSQL object 
-   * suitable for mysql_real_connect() function
-   * 
-   */
-
-  MYSQL *conn = mysql_init(NULL); /*database connection handle*/
-  
-  /**
-   * @brief Prints error message incase
-   * initialisation of con fails.
-   */
-  
-
+/* Print an error message incase
+* initialisation of con fails.
+*/
   if (conn == NULL) {
-      fprintf(stderr, "%s\n", mysql_error(conn));
-      return 0;
+      finish_with_error(conn);
   }  
   
-  /**
-   * @brief Checks if connection is 
-   * properly established.
-   * 
-   */
-  if (mysql_real_connect(conn, server, user, password,database,port,unix_socket,flag) == NULL) {
-      fprintf(stderr, "%s\n", mysql_error(conn));
-      mysql_close(conn);
-      return 0;
-  }    
+/* Check if connection is 
+* properly established.
+*/
+ if (mysql_real_connect(conn, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
+      finish_with_errors(conn);
+ }    
 
 
 
@@ -84,29 +63,26 @@ int  insert_to_esb_request ( char * sender_id, char * dest_id, char * message_ty
 stmt = mysql_stmt_init(conn);
 if (!stmt)
 {
-  fprintf(stderr, " mysql_stmt_init(), out of memory\n");
-      return 0;
+  finish_with_errors(conn);
+  return -1;
 }
 int pp=9;
 if(received_on != NULL && received_on !="")
 {
-   pp=10;
-   col=10;
-  if (mysql_stmt_prepare(stmt, INSERT_SAMPLE, strlen(INSERT_SAMPLE)))
-  {
-    fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
-    fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-      return 0;
-  }
+pp=10;
+col=10;
+if (mysql_stmt_prepare(stmt, INSERT_SAMPLE, strlen(INSERT_SAMPLE)))
+{
+    finish_with_errors(conn);
+    return -1;
+}
 }
 else
    if (mysql_stmt_prepare(stmt, INSERT_SAMPLE1, strlen(INSERT_SAMPLE1)))
-  {
-
-    fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
-    fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-    return 0;
-  }
+{
+  finish_with_errors(conn);
+    return -1;
+}
 
 
 
@@ -119,7 +95,7 @@ fprintf(stdout, " total parameters in INSERT: %d\n", param_count);
 if (param_count != pp) /* validate parameter count */
 {
   fprintf(stderr, " invalid parameter count returned by MySQL\n");
-  return 0;
+  return -1;
 }
 
 
@@ -136,7 +112,7 @@ bind[0].is_null= 0;
 bind[0].length= 0;
 
 
-/* Sender id */
+/* STRING PARAM */
 bind[1].buffer_type= MYSQL_TYPE_STRING;
 bind[1].buffer= (char *)&int_data[0];
 bind[1].is_null= 0;
@@ -144,7 +120,7 @@ bind[1].length= &str_length[0];
 bind[1].buffer_length= STRING_SIZE;
 
 
-/* dest_id */
+/* STRING PARAM */
 bind[2].buffer_type= MYSQL_TYPE_STRING;
 bind[2].buffer= (char *)&int_data[1];
 bind[2].is_null= 0;
@@ -152,7 +128,7 @@ bind[2].length= &str_length[1];
 bind[2].buffer_length= STRING_SIZE;
 
 
-/* message_type */
+/* STRING PARAM */
 bind[3].buffer_type= MYSQL_TYPE_STRING;
 bind[3].buffer= (char *)&int_data[2];
 bind[3].is_null= 0;
@@ -160,7 +136,7 @@ bind[3].length= &str_length[2];
 bind[3].buffer_length= STRING_SIZE;
 
 
-/* reference_id */
+/* STRING PARAM */
 bind[4].buffer_type= MYSQL_TYPE_STRING;
 bind[4].buffer= (char *)&int_data[3];
 bind[4].is_null= 0;
@@ -177,7 +153,7 @@ bind[5].buffer_length= STRING_SIZE;
 
 
 
-/* data_location */
+ /* STRING PARAM */
  bind[6].buffer_type= MYSQL_TYPE_STRING;
  bind[6].buffer= (char *)&int_data[5];
  bind[6].is_null= &is_null[0];
@@ -185,33 +161,32 @@ bind[5].buffer_length= STRING_SIZE;
  bind[6].buffer_length= STRING_SIZE;
 
 
-/* status */
+ /* STRING PARAM */
  bind[7].buffer_type= MYSQL_TYPE_STRING;
  bind[7].buffer= (char *)&int_data[6];
  bind[7].is_null= 0;
  bind[7].length= &str_length[6];
  bind[7].buffer_length= STRING_SIZE;
 
- /* status details */
+ /* STRING PARAM */
+ bind[8].buffer_type= MYSQL_TYPE_STRING;
  bind[8].buffer= (char *)&int_data[7];
  bind[8].is_null= &is_null[1];
  bind[8].length= &str_length[7];
  bind[8].buffer_length= STRING_SIZE;
 
  if(received_on != "" && received_on !=NULL){
- /* Received on */  
+ 
  bind[9].buffer_type= MYSQL_TYPE_DATETIME;
  bind[9].buffer= (char *)&ts;
  bind[9].is_null= 0;
  bind[9].length= 0;
- /* C structure to store DATETIME format */
-  struct tm res;// storing time  
-  /* Convert string to DATETIME format. Store the result*/   
+ 
+  struct tm res;// storing time     
  if (strptime(received_on, "%Y-%m-%dT%H:%M:%S+%Z",&res) ==0)
       printf("\nstrptime failed\n");
-  /* Epoch is 1900 in C standard */
+
   ts.year= res.tm_year+1900;
-  /* Month count is from 0(JAN) */
   ts.month= res.tm_mon+1;
   ts.day= res.tm_mday;
   ts.hour= res.tm_hour;
@@ -219,14 +194,16 @@ bind[5].buffer_length= STRING_SIZE;
   ts.second= res.tm_sec;
  } 
 
-  /* Bind the buffers */
-if (mysql_stmt_bind_param(stmt, bind))
-{
+
+    /* Bind the buffers */
+     if (mysql_stmt_bind_param(stmt, bind))
+   {
     fprintf(stderr, " mysql_stmt_bind_param() failed\n");
     fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-    exit(0);
-}
+   return -1;
+   }
 
+  printf("yes\n");
 
 if (mysql_query(conn, "SELECT * FROM esb_request")) 
   {
@@ -280,12 +257,12 @@ if (mysql_query(conn, "SELECT * FROM esb_request"))
 
 
  /* Execute the INSERT statement */
- if (mysql_stmt_execute(stmt))
- {
-  fprintf(stderr, " mysql_stmt_execute, 1 failed\n");
-  fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
- }
+if (mysql_stmt_execute(stmt)) {
+  fprintf(stderr, " mysql_stmt_execute, failed\n");
+  fprintf(stderr, " [%d]%s\n",mysql_stmt_errno(stmt),
+  mysql_stmt_error(stmt));
+  return -1;
+}
 
  /* Get the total rows affected */
  affected_rows= mysql_stmt_affected_rows(stmt);
@@ -295,16 +272,13 @@ if (mysql_query(conn, "SELECT * FROM esb_request"))
  if (affected_rows != 1) /* validate affected rows */
  {
   fprintf(stderr, " invalid affected rows by MySQL\n");
-  exit(0);
-  return 0;
+  return -1;
  }
 
  /* Close the statement */
  if (mysql_stmt_close(stmt))
  {
-  fprintf(stderr, " failed while closing the statement\n");
-  fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  return 0;
+  finish_with_error(conn);
  }
 
  printf("connection id: %ld\n", mysql_thread_id(conn));

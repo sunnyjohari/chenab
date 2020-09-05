@@ -5,7 +5,7 @@
 #include "connection.h"
 
 #define SELECT_SAMPLE "SELECT sender,destination,message_type,route_id FROM routes WHERE sender = ? AND message_type = ? AND destination= ?  and is_active=1" 
-void finish_with_error1(MYSQL *con) {
+void finish_with_error5(MYSQL *con) {
 
   fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
   mysql_close(con);
@@ -32,15 +32,6 @@ int active_routes_from_source (char * sender,char * destination,char * message_t
 
 
 
-server = "localhost";
-user = "root";
-password = "Pavan1999@"; /*password is not set in this example*/
-database = "esb_db";
-
-port = 3306; /*port number*/
- unix_socket = NULL; /*unix socket*/
-flag = 0; /*last parameter to mysql_real_connect*/
-
  MYSQL *mysql = mysql_init(NULL);
 
   /* Print an error message incase
@@ -54,8 +45,8 @@ flag = 0; /*last parameter to mysql_real_connect*/
   /* Check if connection is 
    * properly established.
    */
-  if (mysql_real_connect(mysql, server, user, password,database,0,NULL,0) == NULL) {
-      finish_with_error1(mysql);
+  if (mysql_real_connect(mysql,SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
+      finish_with_error5(mysql);
   }    
 
 
@@ -158,21 +149,21 @@ flag = 0; /*last parameter to mysql_real_connect*/
 
  /* SENDER COLUMN */
  bind[0].buffer_type= MYSQL_TYPE_STRING;
- bind[0].buffer= (char *)&str_data[0];
+ bind[0].buffer= (char *)str_data[0];
  bind[0].buffer_length= STRING_SIZE;
  bind[0].is_null= 0;
  bind[0].length= &length[0];
  
  /* DESTINATION COLUMN */
  bind[1].buffer_type= MYSQL_TYPE_STRING;
- bind[1].buffer= (char *)&str_data[1];
+ bind[1].buffer= (char *)str_data[1];
  bind[1].buffer_length= STRING_SIZE;
  bind[1].is_null= 0;
  bind[1].length= &length[1];
  
  /* SMALLINT COLUMN */
  bind[2].buffer_type= MYSQL_TYPE_STRING;
- bind[2].buffer= (char *)&small_data;       
+ bind[2].buffer= (char *)small_data;       
  bind[2].is_null=0;
  bind[2].length= &length[2];
  bind[2].buffer_length= STRING_SIZE;
@@ -238,13 +229,14 @@ flag = 0; /*last parameter to mysql_real_connect*/
  return -1; 
 }
 
-/*
+#if 0
 int main(int argc, char **argv) {
-   char * sender = "A";
+   char * sender = "756E2EAA-1D5B-4BC0-ACC4-4CEB669408DA";
    char * message_type = "CreditReport";
-   char * destination="X";
+   char * destination="6393F82F-4687-433D-AA23-1966330381FE";
    int id=active_routes_from_source(sender,destination,message_type);
    printf("\n\n id is %d \n ",id);
    return 0;
 }   
-*/
+
+#endif 

@@ -21,18 +21,14 @@ int active_routes_from_source(char * message, char * destination, char * message
 int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_type,      \
                    char * reference_id, char * message_id,char * received_on,char * data_location, \
                    char * status,char * status_details);
-void select_status_of_route_id(char * status); 
-void select_transport_config(int roue_id);
 
-
-static char *server ;
-static  char *user ;
-static char *password ; /*password is not set in this example*/
-static char *database ;
-
-static  unsigned int port ; /*port number*/
-static char * unix_socket ; /*unix socket*/
-static  unsigned int flag ; /*last parameter to mysql_real_connect*/
+#define SERVER "localhost"
+#define USER "root" 
+#define PASSWORD "Pavan1999@" /*password is not set in this example*/
+#define  DATABASE "esb_db" 
+#define PORT 3306  /*port number*/
+#define UNIX_SOCKET NULL /*unix socket*/
+#define FLAG 0  /*last parameter to mysql_real_connect*/
 
 
 

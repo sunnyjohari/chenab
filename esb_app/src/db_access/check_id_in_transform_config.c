@@ -4,9 +4,9 @@
 #include <mysql/mysql.h>
 #include "connection.h"
 
-#define SELECT_SAMPLE "SELECT * FROM transport_config WHERE route_id= ?" 
+#define SELECT_SAMPLE "SELECT id,route_id,config_key,config_value FROM transform_config WHERE route_id= ?" 
 
-void finish_with_error2(MYSQL *con) {
+void finish_with_error(MYSQL *con) {
 
   fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
   mysql_close(con);
@@ -18,7 +18,7 @@ void finish_with_error2(MYSQL *con) {
 
 
 
-bool check_id_in_transport_config(int route_id){
+bool check_id_in_transform_config(int route_id){
 
  MYSQL_STMT    *stmt;
  MYSQL_BIND    input_bind[1];
@@ -34,18 +34,6 @@ bool check_id_in_transport_config(int route_id){
  char          str_data[2][STRING_SIZE];
 
 
-
-
-server = "localhost";
-user = "root";
-password = "Pavan1999@"; /*password is not set in this example*/
-database = "esb_db";
-
- port = 3306; /*port number*/
- unix_socket = NULL; /*unix socket*/
- int flag = 0; /*last parameter to mysql_real_connect*/
-
-
  MYSQL *mysql = mysql_init(NULL);
 
   /* Print an error message incase
@@ -59,8 +47,8 @@ database = "esb_db";
   /* Check if connection is 
    * properly established.
    */
-  if (mysql_real_connect(mysql, server, user, password,database,0,NULL,0) == NULL) {
-      finish_with_error2(mysql);
+  if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
+      finish_with_error(mysql);
   }    
 
    char query[STRING_SIZE]; /*to store query*/
@@ -69,10 +57,10 @@ database = "esb_db";
   sprintf(query,
   "SELECT * FROM transport_config WHERE route_id = %d ",
   route_id);
- // printf("For query :%s\n",query);
+  //printf("For query :%s\n",query);
   /*checks execution of SQL statement*/
   if (mysql_query(mysql, query)) {
-      finish_with_error2(mysql);
+      finish_with_error(mysql);
   }
 
   MYSQL_RES *result;/*structure that holds result set*/
@@ -82,7 +70,7 @@ database = "esb_db";
   
   /* if there is no result error will be returned*/
   if (result == NULL) {
-      finish_with_error2(mysql);
+      finish_with_error(mysql);
   }
 
   /* stores number of fields in the result*/ 
@@ -93,7 +81,7 @@ database = "esb_db";
   MYSQL_FIELD *field;
    int rows = mysql_num_rows(result);
   /*prints all the rows from the result*/
-/*  while ((row = mysql_fetch_row(result))) { 
+ /* while ((row = mysql_fetch_row(result))) { 
       for(int i = 0; i < num_fields; i++) { 
           if(i==0) {
               while(field = mysql_fetch_field(result)) {
@@ -105,8 +93,8 @@ database = "esb_db";
           printf(" %s |", row[i] ? (char *)row[i] : "NULL"); 
       } 
           printf("\n"); 
-  }*/
-  
+  }
+  */
   /*frees the result*/
   mysql_free_result(result);
   /*closes the database connection*/
@@ -116,15 +104,15 @@ database = "esb_db";
   return false;
 }
 
-/*
 
+/*
 int main(int argc, char **argv) {
    int route_id=15;
    select_transform_config(route_id);
    return 0;
 }   
-
 */
+
 
 
   

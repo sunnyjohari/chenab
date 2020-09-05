@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include<stdlib.h>
 #include<string.h>
 #include "connection.h"
@@ -31,7 +31,7 @@ MYSQL *conn = mysql_init(NULL);
   /* Check if connection is 
    * properly established.
    */
-  if (mysql_real_connect(conn, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
+  if (mysql_real_connect(conn, server, user, password,database,0,NULL,0) == NULL) {
       finish_with_error(conn);
   }    
 
@@ -64,6 +64,8 @@ if (param_count != 2) /* validate parameter count */
 /* Bind the data for all 3 parameters */
 
 memset(bind, 0, sizeof(bind));
+
+
 
 /* STRING PARAM */
 bind[0].buffer_type= MYSQL_TYPE_STRING;

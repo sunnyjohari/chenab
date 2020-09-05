@@ -5,19 +5,15 @@
 /**
  * TODO: This is to be implemented separately.
  */
-bmd parse_bmd_xml(char* bmd_file_path) {
-    bmd b;
-    bmd_envelop envl;
-    envl.sender_id = "TEST-GUID-1";
-    envl.destination_id = "TEST-GUID-2";
-    envl.message_type = "TEST-GUID-3";
-
-    b.envelop = envl;
-    b.payload = "Some data here";
-    return b;
+bmd * parse_bmd_xml(char * filepath)
+{
+   bmd  * bd = (bmd*) malloc (sizeof(bmd));
+   bd->envelope=  extract_envelope(filepath);
+   bd->payload= extract_payload(filepath);
+   return bd;
 }
 
-int is_bmd_valid(bmd b)
+int is_bmd_valid(bmd * b)
 {
     int valid = 1; // 1 => vaild, -1 => invalid
     // TODO: Implement the validation logic here
@@ -25,7 +21,7 @@ int is_bmd_valid(bmd b)
     return valid;
 }
 
-int queue_the_request(bmd b)
+int queue_the_request(bmd * b)
 {
     int success = 1; // 1 => OK, -1 => Error cases
     /** 
@@ -33,6 +29,9 @@ int queue_the_request(bmd b)
      * and implement other logic for enqueueing the request
      * as specified in Theory of Operation.
      */
+     
+     
+     
     return success;
 }
 
