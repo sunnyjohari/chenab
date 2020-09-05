@@ -24,12 +24,4 @@ typedef struct
 extern bmd_envelope *  extract_envelope(char * filepath);
 extern char * extract_payload(char * filepath);
 extern int validate_bmd_request (bmd * bmd_file);
-const char * attributes[] =  {
-    "MessageID",
-    "MessageType",
-    "Sender",
-    "Destination",
-    "CreationDateTime",
-    "Signature",
-    "ReferenceID"
-};
+

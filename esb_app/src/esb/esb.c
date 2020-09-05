@@ -1,6 +1,7 @@
 #include<stdio.h>
-#include "email.h"
+#include "../adapter/email.h"
 #include "esb.h"
+#include "../db_access/connection.h"
 
 /**
  * TODO: This is to be implemented separately.
@@ -13,26 +14,41 @@ bmd * parse_bmd_xml(char * filepath)
    return bd;
 }
 
-int is_bmd_valid(bmd * b)
-{
-    int valid = 1; // 1 => vaild, -1 => invalid
-    // TODO: Implement the validation logic here
 
-    return valid;
+int is_bmd_valid(bmd * b)
+{  
+   int valid =1, invalid = -1;
+    if(validate_xml_file(b)){
+        int id =active_routes_from_source(b->envelope->Sender,
+                                           b->envelope->Destination,b->envelope->MessageType);
+        if(id > 0 ){
+          if(check_id_in_transform_config(id) &&  check_id_in_transport_config(id)){
+             if(strlen(b->payload) <= (5*1024*1024) ) {
+               return valid;
+             }
+          }
+        }     
+    }
+    return invalid;                                         
 }
 
-int queue_the_request(bmd * b)
+int queue_the_request(bmd * bd)
 {
     int success = 1; // 1 => OK, -1 => Error cases
+    int error = -1;
     /** 
      * TODO: Insert the envelop data into esb_requests table,
      * and implement other logic for enqueueing the request
      * as specified in Theory of Operation.
      */
+
+    if(insert_to_esb_request ( bd->envelope->Sender, bd->envelope->Destination, bd->envelope->MessageType,      \
+                   bd->envelope->ReferenceID, bd->envelope->MessageID,bd->envelope->CreationDateTime,    \
+                   "","received",""));
+             return success;
+
      
-     
-     
-    return success;
+   return error;  
 }
 
 /**
@@ -49,7 +65,7 @@ int process_esb_request(char* bmd_file_path) {
      * the modules, including this one.
      */
     // Step 1:
-    bmd b = parse_bmd_xml(bmd_file_path);
+    bmd * b = parse_bmd_xml(bmd_file_path);
 
     // Step 2:
     if (!is_bmd_valid(b))

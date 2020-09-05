@@ -4,7 +4,7 @@ LIBXML_LIBS :=  -I/usr/include/libxml2 -lxml2
 SQL_LIBS   :=  -I/usr/local/mysql/lib -lmysqlclient -lz
 
 xml: validate_bmd_request.o xml_parser.o select_routes.o insert_esb_request.o  check_id_in_transform_config.o check_id_in_transport_config.o
-	gcc  -Wall  -o xml validate_bmd_request.o  insert_esb_request.o \
+	gcc  -Wall  -o xml  main.c validate_bmd_request.o  insert_esb_request.o \
 	xml_parser.o \
 	select_routes.o  check_id_in_transform_config.o          \
 	check_id_in_transport_config.o  ${LIBXML_LIBS}  ${SQL_LIBS}

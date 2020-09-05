@@ -47,7 +47,7 @@ int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_typ
 * initialisation of con fails.
 */
   if (conn == NULL) {
-      finish_with_error(conn);
+      finish_with_errors(conn);
   }  
   
 /* Check if connection is 
@@ -207,14 +207,14 @@ bind[5].buffer_length= STRING_SIZE;
 
 if (mysql_query(conn, "SELECT * FROM esb_request")) 
   {
-      finish_with_error(conn);
+      finish_with_errors(conn);
   }
   
   MYSQL_RES *result = mysql_store_result(conn);
   
   if (result == NULL) 
   {
-      finish_with_error(conn);
+      finish_with_errors(conn);
   }
   
   int nu;
@@ -278,7 +278,7 @@ if (mysql_stmt_execute(stmt)) {
  /* Close the statement */
  if (mysql_stmt_close(stmt))
  {
-  finish_with_error(conn);
+  finish_with_errors(conn);
  }
 
  printf("connection id: %ld\n", mysql_thread_id(conn));
