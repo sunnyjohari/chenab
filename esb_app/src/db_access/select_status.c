@@ -7,7 +7,7 @@
 
 #define SELECT_SAMPLE "SELECT * FROM esb_request WHERE status= ?" 
 
-void select_status(char * status){
+int select_status(char * status){
  
  MYSQL_STMT    *stmt;
  MYSQL_RES     *prepare_meta_result;
@@ -38,7 +38,9 @@ void select_status(char * status){
    * properly established.
    */
   if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
-      finish_with_error(mysql);
+       fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
+       mysql_close(con);
+       return -1;
   }    
 
 
@@ -46,25 +48,25 @@ void select_status(char * status){
  if (!stmt)
  {
   fprintf(stderr, " mysql_stmt_init(), out of memory\n");
-  exit(0);
+  return -1;
  }
   /* Prepare a SELECT query to fetch data from routes_table */
  if (mysql_stmt_prepare(stmt, SELECT_SAMPLE, strlen(SELECT_SAMPLE)))
  {
   fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return -1;
  }
  fprintf(stdout, " prepare, SELECT successful\n");
 
  /* Get the parameter count from the statement */
  param_count= mysql_stmt_param_count(stmt);
- fprintf(stdout, " total parameters in SELECT: %d\n", param_count);
+ //fprintf(stdout, " total parameters in SELECT: %d\n", param_count);
 
  if (param_count != 1) /* validate parameter count */
  {
   fprintf(stderr, " invalid parameter count returned by MySQL\n");
-  exit(0);
+  return -1;
  }
 
 
@@ -79,11 +81,11 @@ void select_status(char * status){
 
  /* Get total columns in the query */
  column_count= mysql_num_fields(prepare_meta_result);
- fprintf(stdout, " total columns in SELECT statement: %d\n", column_count);
+// fprintf(stdout, " total columns in SELECT statement: %d\n", column_count);
  if (column_count != 10) /* validate column count */
  {
   fprintf(stderr, " invalid column count returned by MySQL\n");
-  exit(0);
+  return -1;
  }
 
  memset(input_bind, 0, sizeof(input_bind));
@@ -101,7 +103,7 @@ void select_status(char * status){
  {
   fprintf(stderr, " mysql_stmt_bind_param() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return -1;
  }
 
  strncpy(input_data, status, STRING_SIZE);
@@ -112,7 +114,7 @@ void select_status(char * status){
  {
   fprintf(stderr, " mysql_stmt_execute,  failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return -1;
  }
 
  /* Bind the result buffers for all 3 columns before fetching them */
@@ -216,12 +218,15 @@ void select_status(char * status){
 
  /* Fetch all rows */
  row_count= 0;
- fprintf(stdout, "Fetching results ...\n\n");
- printf("HEADER--> id  sender_id  dest_id  message_type  reference_id  message_id received_on\t  data_location  status   status_details\n");
+// fprintf(stdout, "Fetching results ...\n\n");
+ //printf("HEADER--> id  sender_id  dest_id  message_type  reference_id  message_id received_on\t  data_location  status   status_details\n");
+ int route_id;
  while (!mysql_stmt_fetch(stmt))
  {
 
   row_count++;
+  route_id=id;
+  #if 0
   fprintf(stdout, "row %d :-->", row_count);
   /* column 1 */
       fprintf(stdout, " %d  ", id);
@@ -256,6 +261,7 @@ void select_status(char * status){
 
 
     printf("\n");
+    #endif
 }
 
  /* Validate rows fetched */
@@ -269,19 +275,22 @@ void select_status(char * status){
  {
   fprintf(stderr, " failed while closing the statement\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return -1;
  }
  
- mysql_close(mysql);    
+ mysql_close(mysql); 
+ return route_id;   
 }
 
+
+/*
 int main(int argc, char **argv) {
    char * status="wewww";
    select_status(status);
    return 0;
 }   
 
-
+*/
 
 
   

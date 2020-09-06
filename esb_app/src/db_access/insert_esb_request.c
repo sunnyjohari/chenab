@@ -55,6 +55,7 @@ int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_typ
 */
  if (mysql_real_connect(conn, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
       finish_with_errors(conn);
+      return -1;
  }    
 
 
@@ -86,11 +87,11 @@ else
 
 
 
-fprintf(stdout, " prepare, INSERT successful\n");
+//fprintf(stdout, " prepare, INSERT successful\n");
 
 /* Get the parameter count from the statement */
 param_count= mysql_stmt_param_count(stmt);
-fprintf(stdout, " total parameters in INSERT: %d\n", param_count);
+//fprintf(stdout, " total parameters in INSERT: %d\n", param_count);
 
 if (param_count != pp) /* validate parameter count */
 {
@@ -203,7 +204,7 @@ bind[5].buffer_length= STRING_SIZE;
    return -1;
    }
 
-  printf("yes\n");
+
 
 if (mysql_query(conn, "SELECT * FROM esb_request")) 
   {
@@ -222,7 +223,7 @@ if (mysql_query(conn, "SELECT * FROM esb_request"))
   while ((row = mysql_fetch_row(result))) {               
          nu = atoi(row[0]);
          }
-  printf("%d\n",nu);
+
   mysql_free_result(result);
 
  nu+=1;
@@ -266,7 +267,7 @@ if (mysql_stmt_execute(stmt)) {
 
  /* Get the total rows affected */
  affected_rows= mysql_stmt_affected_rows(stmt);
- fprintf(stdout, " total affected rows(insert 2): %lu\n",
+ //fprintf(stdout, " total affected rows(insert 2): %lu\n",
                 (unsigned long) affected_rows);
 
  if (affected_rows != 1) /* validate affected rows */
@@ -279,6 +280,7 @@ if (mysql_stmt_execute(stmt)) {
  if (mysql_stmt_close(stmt))
  {
   finish_with_errors(conn);
+        return -1;
  }
 
  printf("connection id: %ld\n", mysql_thread_id(conn));

@@ -38,14 +38,16 @@ bool check_id_in_transport_config(int route_id){
    */
   if (mysql == NULL) {
       fprintf(stderr, "mysql_init() failed\n");
-      exit(1);
+       return false;
   }  
   
   /* Check if connection is 
    * properly established.
    */
   if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
-      finish_with_error1(mysql);
+       fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
+       mysql_close(con);
+       return false;
   }    
 
 
@@ -53,14 +55,14 @@ bool check_id_in_transport_config(int route_id){
  if (!stmt)
  {
   fprintf(stderr, " mysql_stmt_init(), out of memory\n");
-  exit(0);
+  return false;
  }
   /* Prepare a SELECT query to fetch data from routes_table */
  if (mysql_stmt_prepare(stmt, SELECT_SAMPLE, strlen(SELECT_SAMPLE)))
  {
   fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
  //fprintf(stdout, " prepare, SELECT successful\n");
 
@@ -71,7 +73,7 @@ bool check_id_in_transport_config(int route_id){
  if (param_count != 1) /* validate parameter count */
  {
   fprintf(stderr, " invalid parameter count returned by MySQL\n");
-  exit(0);
+  return false;
  }
 
 
@@ -81,7 +83,7 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr," mysql_stmt_result_metadata(), returned no meta information\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
 
  /* Get total columns in the query */
@@ -90,7 +92,7 @@ bool check_id_in_transport_config(int route_id){
  if (column_count != 4) /* validate column count */
  {
   fprintf(stderr, " invalid column count returned by MySQL\n");
-  exit(0);
+  return false;
  }
 
  memset(input_bind, 0, sizeof(input_bind));
@@ -108,7 +110,7 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_bind_param() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
 
 
@@ -118,7 +120,7 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_execute,  failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
 
  /* Bind the result buffers for all 3 columns before fetching them */
@@ -154,7 +156,7 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_bind_result() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
 
  /* Now buffer all results to client */
@@ -162,31 +164,26 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_store_result() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
 
  /* Fetch all rows */
  row_count= 0;
  //fprintf(stdout, "Fetching results ...\n\n");
  //printf("    route_id     Sender    Destination     Messsage_type\n");
- while (!mysql_stmt_fetch(stmt))
+ if (!mysql_stmt_fetch(stmt))
  {
 
-  row_count++;
+   row_count++;
 
- // fprintf(stdout, "  row %d\t", row_count);
 
- // fprintf(stdout, " %d\t",id );
-
-  //fprintf(stdout, " %s\t", str_data[0]);
-
-  //fprintf(stdout, "     %s\t\t", str_data[1]);
-
+   #if 0
    printf("   %d\n", small_data[0]);
+   printf("   %d\n", small_data[1]);
+   fprintf(stdout, " %s\t", str_data[0]);
+   fprintf(stdout, " %s\t", str_data[1]);
+   #endif
    
-      printf("   %d\n", small_data[1]);
-  fprintf(stdout, " %s\t", str_data[0]);
-    fprintf(stdout, " %s\t", str_data[1]);
    mysql_free_result(prepare_meta_result);
 
  /* Close the statement */
@@ -194,7 +191,7 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " failed while closing the statement\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
    return true;
 }
@@ -210,7 +207,7 @@ bool check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " failed while closing the statement\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return false;
  }
  
  mysql_close(mysql);  

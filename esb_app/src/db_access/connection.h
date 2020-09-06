@@ -21,6 +21,9 @@ int active_routes_from_source(char * message, char * destination, char * message
 int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_type,      \
                    char * reference_id, char * message_id,char * received_on,char * data_location, \
                    char * status,char * status_details);
+                   
+int select_status(char * status);
+int update_esb_request(int index, char * status);                   
 
 #define SERVER "localhost"
 #define USER "root" 
