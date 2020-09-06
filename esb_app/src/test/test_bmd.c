@@ -3,7 +3,15 @@
 #include "../bmd_extract/xml.h"
 #include<stdlib.h>
 
-char *get_str_data(char *file)
+/**
+* @brief storing entire data of a file into a string
+* 
+* @param file name
+* @return string of entire data of a file
+*/
+
+
+char *get_file_data(char *file)
 {
 FILE  *infile;
 char    *buffer;
@@ -50,7 +58,7 @@ xml_to_json_setup(const MunitParameter params[], void *user_data)
   bmd *bd = parse_bmd_xml(file);
   char * file_created = xml_to_json(bd);
   /* Copy file data into string */
-  char *json_data = get_str_data(file_created);
+  char *json_data = get_file_data(file_created);
   return strdup(json_data);
 }
 
@@ -59,7 +67,7 @@ static MunitResult
 test_xml_to_json(const MunitParameter params[], void *fixture)
 {
   char *json_data = (char *)fixture;
-  char *test_data = get_str_data("payload_test.json");
+  char *test_data = get_file_data("payload_test.json");
   munit_assert_string_equal(json_data, test_data);
   return MUNIT_OK;
 }
@@ -107,7 +115,7 @@ parse_bmd_xml_setup(const MunitParameter params[], void *user_data)
 
 bmd *get_bmd(void)
 {
-  bmd *bmd_file = (bmd *)malloc(sizeof(bmd));
+  bmd *bmd = (bmd *)malloc(sizeof(bmd));
   bmd_envelope *envl = (bmd_envelope *)malloc(sizeof(bmd_envelope));
   envl->Sender = "756E2EAA-1D5B-4BC0-ACC4-4CEB669408DA";
   envl->Destination = "6393F82F-4687-433D-AA23-1966330381FE";
@@ -116,8 +124,8 @@ bmd *get_bmd(void)
   envl->MessageType = "CreditReport";
   envl->ReferenceID = "INV-PROFILE-889712";
   envl->Signature = "63f5f61f7a79301f715433f8f3689390d1f5da4f855169023300491c00b8113c";
-  bmd_file->envelope = envl;
-  bmd_file->payload = "001-01-1234";
+  bmd->envelope = envl;
+  bmd->payload = "001-01-1234";
 
   return bmd_file;
 }
