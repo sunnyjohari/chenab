@@ -6,6 +6,14 @@
 
 #define UPDATE_SAMPLE "UPDATE esb_request SET status=? WHERE id=?"
 
+/**
+ * @brief update esb_request
+ * 
+ * parameters index, status
+ * return 1 0r -1
+ * 
+ */ 
+
 int update_esb_request(int index, char * status){
 
 	MYSQL_STMT    *stmt;
@@ -38,7 +46,7 @@ int update_esb_request(int index, char * status){
 
 
 	/* Prepare an UPDATE query with 2 parameters */
-	stmt = mysql_stmt_init(mysql);
+	stmt = mysql_stmt_init(conn);
 	if (!stmt)
 	{
 	  fprintf(stderr, " mysql_stmt_init(), out of memory\n");
