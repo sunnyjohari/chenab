@@ -57,6 +57,7 @@ xml_to_json_setup(const MunitParameter params[], void *user_data)
   char *file = "../bmd_extract/dum.xml";
   bmd *bd = parse_bmd_xml(file);
   char * file_created = xml_to_json(bd);
+  printf("%s\n",file_created);
   /* Copy file data into string */
   char *json_data = get_file_data(file_created);
   return strdup(json_data);
@@ -67,6 +68,7 @@ static MunitResult
 test_xml_to_json(const MunitParameter params[], void *fixture)
 {
   char *json_data = (char *)fixture;
+
   char *test_data = get_file_data("payload_test.json");
   munit_assert_string_equal(json_data, test_data);
   return MUNIT_OK;
@@ -78,6 +80,58 @@ xml_to_json_tear_down(void *fixture)
 
   free(fixture);
 }
+
+
+
+static void *
+xml_to_json1_setup(const MunitParameter params[], void *user_data)
+{
+  char *file = "../bmd_extract/dum1.xml";
+  bmd *bd = parse_bmd_xml(file);
+  char * file_created = xml_to_json(bd);
+  printf("%s\n",file_created);
+  /* Copy file data into string */
+  char *json_data = get_file_data(file_created);
+  return strdup(json_data);
+}
+
+/* Test function */
+static MunitResult
+test_xml_to_json1(const MunitParameter params[], void *fixture)
+{
+  char *json_data = (char *)fixture;
+
+  char *test_data = get_file_data("payload_test1.json");
+  munit_assert_string_equal(json_data, test_data);
+  return MUNIT_OK;
+}
+
+static void
+xml_to_json1_tear_down(void *fixture)
+{
+
+  free(fixture);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Test setup function creates bmd and returns it */
 static void *
@@ -94,7 +148,7 @@ test_is_bmd_valid(const MunitParameter params[], void *fixture)
 {
   bmd  *test_bmd = (bmd *)fixture;
   /* is_bmd_valid returns 1 if valid */
-  munit_assert(validate_bmd_request(test_bmd) == 1);
+  munit_assert(is_bmd_valid(test_bmd) == 1);
   return MUNIT_OK;
 }
 
@@ -115,7 +169,7 @@ parse_bmd_xml_setup(const MunitParameter params[], void *user_data)
 
 bmd *get_bmd(void)
 {
-  bmd *bmd = (bmd *)malloc(sizeof(bmd));
+  bmd *bd = (bmd *) malloc(sizeof(bd));
   bmd_envelope *envl = (bmd_envelope *)malloc(sizeof(bmd_envelope));
   envl->Sender = "756E2EAA-1D5B-4BC0-ACC4-4CEB669408DA";
   envl->Destination = "6393F82F-4687-433D-AA23-1966330381FE";
@@ -124,10 +178,10 @@ bmd *get_bmd(void)
   envl->MessageType = "CreditReport";
   envl->ReferenceID = "INV-PROFILE-889712";
   envl->Signature = "63f5f61f7a79301f715433f8f3689390d1f5da4f855169023300491c00b8113c";
-  bmd->envelope = envl;
-  bmd->payload = "001-01-1234";
+  bd->envelope = envl;
+  bd->payload = "001-01-1234";
 
-  return bmd_file;
+  return bd;
 }
 /* Test function */
 static MunitResult
@@ -194,6 +248,18 @@ MunitTest bmd_tests[] = {
         MUNIT_TEST_OPTION_NONE, /* options */
         NULL                    /* parameters */
     },
+
+    {
+        "/xml_to_json1_test",    /* name */
+        test_xml_to_json1,       /* test function */
+        xml_to_json1_setup,      /* setup function for the test */
+        xml_to_json1_tear_down,  /* tear_down */
+        MUNIT_TEST_OPTION_NONE, /* options */
+        NULL                    /* parameters */
+
+    },
+
+
     /* Mark the end of the array with an entry where the test
    * function is NULL */
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}};

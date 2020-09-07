@@ -45,8 +45,8 @@ bool check_id_in_transport_config(int route_id){
    * properly established.
    */
   if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
-       fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
-       mysql_close(con);
+       fprintf(stderr, "Error [%d]: %s \n",mysql_errno(mysql),mysql_error(mysql));
+       mysql_close(mysql);
        return false;
   }    
 

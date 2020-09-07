@@ -167,7 +167,7 @@ bmd_envelope * extract_envelope(char * filepath)
 * returning the payload 
 */
 
-
+/*
 bmd * parse_bmd_xml(char * filepath)
 {
    bmd  * bd = (bmd*) malloc (sizeof(bmd));
@@ -175,7 +175,7 @@ bmd * parse_bmd_xml(char * filepath)
    bd->payload= extract_payload(filepath);
    return bd;
 }
-
+*/
 
 char * extract_payload(char * filepath)
 {
@@ -306,9 +306,11 @@ int validate_xml_file( bmd * bmd_file)
 
   /* assigning memoryfor JSON file*/
   char * file_name = malloc((strlen("payload_") + strlen(bd->envelope->MessageID)+ strlen(".json")+1)* sizeof(char));
+  char * file_index = malloc((strlen(bd->envelope->MessageID)) * sizeof(char));
+  file_index = bd->envelope->MessageID;
 
   /* creating .json file*/
-  sprintf(file_name,"payload_%s.json","test");
+  sprintf(file_name,"payload_%s.json",file_index);
 
   FILE *fp = fopen(file_name,"w");
     if(fp == NULL) {
