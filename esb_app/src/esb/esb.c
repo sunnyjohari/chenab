@@ -1,54 +1,31 @@
-#include<stdio.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "../adapter/email.h"
-#include "esb.h"
+
+#include "../bmd_extract/xml.h"
+
+/** Module that has mysql C API functions */
+
 #include "../db_access/connection.h"
 
-/**
- * TODO: This is to be implemented separately.
- */
-bmd * parse_bmd_xml(char * filepath)
-{
-   bmd  * bd = (bmd*) malloc (sizeof(bmd));
-   bd->envelope=  extract_envelope(filepath);
-   bd->payload= extract_payload(filepath);
-   return bd;
-}
-
-
-int is_bmd_valid(bmd * b)
-{  
-   int valid =1, invalid = -1;
-    if(validate_xml_file(b)){
-        int id =active_routes_from_source(b->envelope->Sender,
-                                           b->envelope->Destination,b->envelope->MessageType);
-        if(id > 0 ){
-          if(check_id_in_transform_config(id) &&  check_id_in_transport_config(id)){
-             if(strlen(b->payload) <= (5*1024*1024) ) {
-               return valid;
-             }
-          }
-        }     
-    }
-    return invalid;                                         
-}
-
-int queue_the_request(bmd * bd)
-{
+int queue_the_request(bmd *b) {
     int success = 1; // 1 => OK, -1 => Error cases
-    int error = -1;
-    /** 
-     * TODO: Insert the envelop data into esb_requests table,
-     * and implement other logic for enqueueing the request
-     * as specified in Theory of Operation.
+
+    /**
+     * @brief Implements the Query:
+     * INSERT INTO                            
+     * esb_request(sender_id,dest_id,message_type,reference_id,      
+     * message_id,data_location,status,status_details)               
+     * VALUES(?,?,?,?,?,?,?,?)
+     * function returns 1 on successful insertion. 
+     * function is defined in db_access module
      */
-
-    if(insert_to_esb_request ( bd->envelope->Sender, bd->envelope->Destination, bd->envelope->MessageType,      \
-                   bd->envelope->ReferenceID, bd->envelope->MessageID,bd->envelope->CreationDateTime,    \
-                   "","received",""));
-             return success;
-
-     
-   return error;  
+    int rc = insert_to_esb_request(b->envelope->Sender,
+    b->envelope->Destination,b->envelope->MessageType,
+    b->envelope->ReferenceID,b->envelope->MessageID,
+    "Routes","RECEIVED","received successfully",b->envelope->CreationDateTime);
+    if(rc ==1)
+    return success;
 }
 
 /**
@@ -65,10 +42,12 @@ int process_esb_request(char* bmd_file_path) {
      * the modules, including this one.
      */
     // Step 1:
-    bmd * b = parse_bmd_xml(bmd_file_path);
+    bmd *b = parse_bmd_xml(bmd_file_path);
+    /** defined in bmd_assets module*/
 
     // Step 2:
-    if (!is_bmd_valid(b))
+    /** defined in bmd_extract module*/
+    if (is_bmd_valid(b)!=1)
     {
         //TODO: Process the error case
         printf("BMD is invalid!\n");
@@ -78,7 +57,19 @@ int process_esb_request(char* bmd_file_path) {
     {
         // Step 3:
         status = queue_the_request(b);
+        printf("Queued..!");
     }
     
     return status;
+}
+
+int main () {
+    int status = process_esb_request("../bmd_extract/test_files/dum.xml");
+    
+    if(status != 1) {
+        printf("Status[%d]: Request processing failed",status);
+        return EXIT_FAILURE;
+        }
+      
+    return EXIT_SUCCESS;
 }

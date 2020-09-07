@@ -1,27 +1,12 @@
+#include <stdio.h>
+#include "../bmd_assets/bmd.h"
+
+#ifndef ESB_H
+#define ESB_H
+
+int queue_the_request(bmd *b);
 int process_esb_request(char* bmd_file_path);
+int fetch_new_request_from_db(bmd *request);
+void *poll_database_for_new_requets(void *vargp);
 
-
-typedef struct 
-{
-    char  *MessageID;
-    char  *MessageType;
-    char  *Sender;
-    char * Destination;
-    char *CreationDateTime;
-    char  *Signature;
-    char  *ReferenceID;
-}bmd_envelope;
-
-
-typedef struct 
-{
-  bmd_envelope * envelope;
-  char * Payload;
-} bmd;
-
-
-
-extern bmd_envelope *  extract_envelope(char * filepath);
-extern char * extract_payload(char * filepath);
-extern int validate_bmd_request (bmd * bmd_file);
-
+#endif

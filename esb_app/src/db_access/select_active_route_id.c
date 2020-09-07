@@ -4,24 +4,35 @@
 #include <mysql/mysql.h>
 #include "connection.h"
 
-#define SELECT_SAMPLE "SELECT id,route_id,config_key,config_value FROM transform_config WHERE route_id= ?" 
+#define STRING_SIZE 500
+
+#define SELECT_SAMPLE "SELECT sender,destination,message_type,route_id FROM routes WHERE sender = ? AND message_type = ? AND destination= ?  and is_active=1" 
+void finish_with_error5(MYSQL *con) {
+
+  fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
+  mysql_close(con);
+
+  exit(1);        
+}
 
 
-#define STRING_SIZE 200
 
-int  check_id_in_transform_config(int route_id){
+int active_routes_from_source (char * sender,char * destination,char * message_type){
 
  MYSQL_STMT    *stmt;
- MYSQL_BIND    input_bind[1];
+ MYSQL_BIND    input_bind[3];
+ char          input_data[3][STRING_SIZE];
  unsigned long input_length[3];
  MYSQL_BIND    bind[4];
  MYSQL_RES     *prepare_meta_result;
  int id;
  unsigned long length[4];
  int           param_count, column_count, row_count;
- int          small_data[2];
- char str_data[2][STRING_SIZE];
- bool is_null[4];
+ char          small_data[STRING_SIZE];
+ char          str_data[2][STRING_SIZE];
+
+
+
 
  MYSQL *mysql = mysql_init(NULL);
 
@@ -36,11 +47,9 @@ int  check_id_in_transform_config(int route_id){
   /* Check if connection is 
    * properly established.
    */
-  if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
-    fprintf(stderr, "Error [%d]: %s \n",mysql_errno(mysql),mysql_error(mysql));
-  mysql_close(mysql);
- 
-    }   
+  if (mysql_real_connect(mysql,SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
+      finish_with_error5(mysql);
+  }    
 
 
  stmt = mysql_stmt_init(mysql);
@@ -62,7 +71,7 @@ int  check_id_in_transform_config(int route_id){
  param_count= mysql_stmt_param_count(stmt);
  //fprintf(stdout, " total parameters in SELECT: %d\n", param_count);
 
- if (param_count != 1) /* validate parameter count */
+ if (param_count != 3) /* validate parameter count */
  {
   fprintf(stderr, " invalid parameter count returned by MySQL\n");
   exit(0);
@@ -90,10 +99,25 @@ int  check_id_in_transform_config(int route_id){
  memset(input_bind, 0, sizeof(input_bind));
 
  /* STRING COLUMN */
- input_bind[0].buffer_type= MYSQL_TYPE_LONG;
- input_bind[0].buffer= (char *)&id;
+ input_bind[0].buffer_type= MYSQL_TYPE_STRING;
+ input_bind[0].buffer= (char *)input_data[0];
+ input_bind[0].buffer_length= STRING_SIZE;
  input_bind[0].is_null= 0;
  input_bind[0].length= &input_length[0];
+
+ /* STRING COLUMN */
+ input_bind[1].buffer_type= MYSQL_TYPE_STRING;
+ input_bind[1].buffer= (char *)&input_data[1];       
+ input_bind[1].is_null= 0;
+ input_bind[1].length= &input_length[1];
+ input_bind[1].buffer_length= STRING_SIZE;
+ 
+ /* STRING COLUMN */
+ input_bind[2].buffer_type= MYSQL_TYPE_STRING;
+ input_bind[2].buffer= (char *)&input_data[2];       
+ input_bind[2].is_null= 0;
+ input_bind[2].length= &input_length[2];
+ input_bind[2].buffer_length= STRING_SIZE;
 
 
 
@@ -105,8 +129,13 @@ int  check_id_in_transform_config(int route_id){
   exit(0);
  }
 
-
- id=route_id;
+ strncpy(input_data[0], sender, STRING_SIZE);
+ strncpy(input_data[1], message_type, STRING_SIZE);
+  strncpy(input_data[2], destination, STRING_SIZE);
+ input_length[0]= strlen(input_data[0]);
+ input_length[1]=strlen(input_data[1]);
+ input_length[2]=strlen(input_data[2]);
+ 
  
  if (mysql_stmt_execute(stmt))
  {
@@ -121,28 +150,32 @@ int  check_id_in_transform_config(int route_id){
  
 
  /* SENDER COLUMN */
- bind[0].buffer_type= MYSQL_TYPE_LONG;
- bind[0].buffer= (char *)&small_data[0];
- bind[0].is_null= &is_null[0];
+ bind[0].buffer_type= MYSQL_TYPE_STRING;
+ bind[0].buffer= (char *)str_data[0];
+ bind[0].buffer_length= STRING_SIZE;
+ bind[0].is_null= 0;
  bind[0].length= &length[0];
  
- bind[1].buffer_type= MYSQL_TYPE_LONG;
- bind[1].buffer= (char *)&small_data[1];
- bind[1].is_null= &is_null[1];
+ /* DESTINATION COLUMN */
+ bind[1].buffer_type= MYSQL_TYPE_STRING;
+ bind[1].buffer= (char *)str_data[1];
+ bind[1].buffer_length= STRING_SIZE;
+ bind[1].is_null= 0;
  bind[1].length= &length[1];
  
+ /* SMALLINT COLUMN */
  bind[2].buffer_type= MYSQL_TYPE_STRING;
- bind[2].buffer= (char *)str_data[0];
- bind[2].buffer_length= STRING_SIZE;
- bind[2].is_null= &is_null[2];
+ bind[2].buffer= (char *)small_data;       
+ bind[2].is_null=0;
  bind[2].length= &length[2];
+ bind[2].buffer_length= STRING_SIZE;
  
-  bind[3].buffer_type= MYSQL_TYPE_STRING;
- bind[3].buffer= (char *)str_data[1];
- bind[3].buffer_length= STRING_SIZE;
- bind[3].is_null= &is_null[3];
+ /* route_id*/
+ bind[3].buffer_type= MYSQL_TYPE_LONG;
+ bind[3].buffer= (char *)&id;
+ bind[3].is_null= 0;
  bind[3].length= &length[3];
- 
+
  /* Bind the result buffers */
  if (mysql_stmt_bind_result(stmt, bind))
  {
@@ -167,7 +200,7 @@ int  check_id_in_transform_config(int route_id){
  {
 
   row_count++;
-
+  return id;
  // fprintf(stdout, "  row %d\t", row_count);
 
  // fprintf(stdout, " %d\t",id );
@@ -176,21 +209,7 @@ int  check_id_in_transform_config(int route_id){
 
   //fprintf(stdout, "     %s\t\t", str_data[1]);
 
-   printf("   %d\n", small_data[0]);
-   
-      printf("   %d\n", small_data[1]);
-  fprintf(stdout, " %s\t", str_data[0]);
-    fprintf(stdout, " %s\t", str_data[1]);
-   mysql_free_result(prepare_meta_result);
-
- /* Close the statement */
- if (mysql_stmt_close(stmt))
- {
-  fprintf(stderr, " failed while closing the statement\n");
-  fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
- }
-   return small_data[0];
+   //printf("   %s\n", small_data);
 }
 
  /* Validate rows fetched */
@@ -212,14 +231,14 @@ int  check_id_in_transform_config(int route_id){
  return -1; 
 }
 
-
-/*
+#if 0
 int main(int argc, char **argv) {
-   int route_id=15;
-   check_id_in_transport_config(route_id)?printf("yes\n"):printf("NO\n");
+   char * sender = "756E2EAA-1D5B-4BC0-ACC4-4CEB669408DA";
+   char * message_type = "CreditReport";
+   char * destination="6393F82F-4687-433D-AA23-1966330381FE";
+   int id=active_routes_from_source(sender,destination,message_type);
+   printf("\n\n id is %d \n ",id);
    return 0;
-}   */
+}   
 
-
-
-  
+#endif 

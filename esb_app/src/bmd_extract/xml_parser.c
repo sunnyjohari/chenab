@@ -64,7 +64,7 @@ void extract_envelope_utils(xmlNode * node, bmd_envelope * bm)
                     bm->MessageID = malloc((n+1)* sizeof(char));
                     strcpy(bm->MessageID,(char *) xmlNodeGetContent(node));
                     if(strcmp(bm->MessageID, "") ==0){
-                     //  bm->MessageID=NULL;  
+                       bm->MessageID=NULL;  
                     } 
                 }
                 /* MesageType*/
@@ -167,7 +167,7 @@ bmd_envelope * extract_envelope(char * filepath)
 * returning the payload 
 */
 
-/*
+
 bmd * parse_bmd_xml(char * filepath)
 {
    bmd  * bd = (bmd*) malloc (sizeof(bmd));
@@ -175,7 +175,7 @@ bmd * parse_bmd_xml(char * filepath)
    bd->payload= extract_payload(filepath);
    return bd;
 }
-*/
+
 
 char * extract_payload(char * filepath)
 {
@@ -225,70 +225,6 @@ char * extract_payload(char * filepath)
   return NULL;     
 }
 
-/* @ brief: validating bmd.
- * checking whether xml file consists of appropriate elements.
- * if it contains returns 1
- * else return 0
-*/
-
-# if 0
-
-int validate_xml_file( bmd * bmd_file)
-{
-  /* MessageID */
-  if(bmd_file->envelope->MessageID  == NULL) {
-    fprintf(stderr,"Message ID doesnot exist in bmd");
-    return 0;
-  }
-
-  /* MessageType */
-  if(bmd_file->envelope->MessageType == NULL) {
-    fprintf(stderr,"Message Type doesnot exist in bmd");
-    return 0;
-  }
-
-  /* Sender */
-  if(bmd_file->envelope->Sender == NULL) {
-    fprintf(stderr,"Sender doesnot exist in bmd");
-    return 0;
-  }
-
-
-  /* Destination */
-  if(bmd_file->envelope->Destination == NULL) {
-    fprintf(stderr,"Destination doesnot exist in bmd");
-    return 0;
-  }
-
-
-  /* CreationDateTime */
-  if(bmd_file->envelope->CreationDateTime == NULL) {
-    fprintf(stderr,"CreationDateTime doesnot exist in bmd");
-    return 0;
-  }
-
-
-  /* Signature */
-  if(bmd_file->envelope->Signature == NULL) {
-    fprintf(stderr,"Signature doesnot exist in bmd");
-    return 0;
-  }
-
-  /* ReferenceID */
-  if(bmd_file->envelope->ReferenceID == NULL) {
-      fprintf(stderr,"ReferenceID doesnot exist in bmd");
-      return 0;
-  }
-
-  /* payload */
-  if(bmd_file->payload == NULL) {
-    fprintf(stderr,"Payload doesnot exist in bmd");
-    return 0;
-  }
-
-  return 1;
-}
- #endif
 
 /* @ brief creating JSON file 
  * @ param  file path
@@ -296,7 +232,7 @@ int validate_xml_file( bmd * bmd_file)
  */
 
 
-  char* xml_to_json ( bmd* bd){
+ char* xml_to_json ( bmd* bd){
 
 /* excluding the path of the directory and assigning filepath as name of the xml file*/
  
@@ -306,12 +242,8 @@ int validate_xml_file( bmd * bmd_file)
 
   /* assigning memoryfor JSON file*/
   char * file_name = malloc((strlen("payload_") + strlen(bd->envelope->MessageID)+ strlen(".json")+1)* sizeof(char));
-  char * file_index ;
-  
-
-     file_index = malloc((strlen(bd->envelope->MessageID)) * sizeof(char));
+  char * file_index = malloc((strlen(bd->envelope->MessageID)) * sizeof(char));
   file_index = bd->envelope->MessageID;
-  
 
   /* creating .json file*/
   sprintf(file_name,"payload_%s.json",file_index);
@@ -328,18 +260,43 @@ int validate_xml_file( bmd * bmd_file)
 
 
 
+  
+long int find_size(char  * file_name) 
+{ 
+    // opening the file in read mode 
+    FILE* fp = fopen(file_name, "r"); 
+  
+    // checking if the file exist or not 
+    if (fp == NULL) { 
+        printf("File Not Found!\n"); 
+        return -1; 
+    } 
+  
+    fseek(fp, 0L, SEEK_END); 
+  
+    // calculating the size of the file 
+    long int res = ftell(fp); 
+  
+    // closing the file 
+    fclose(fp); 
+  
+    return res; 
+} 
+
+
+
 
 /*
 
 int main()
 {
 
-    char  filepath[50] = "/home/bpavan/bmd_extract/dum.xml";
+    char  filepath[50] = "/home/bpavan/bmd_extract/dum1.xml";
     bmd  * bd = (bmd*) malloc (sizeof(bmd));
     bd= parse_bmd_xml(filepath);
   //  validate_xml_file(bd)? printf("1"): printf("2");
     printf("\n");
-    printf("%s",xml_to_json1(bd));
+    printf("%s",xml_to_json(bd));
     return 0;
 }
 

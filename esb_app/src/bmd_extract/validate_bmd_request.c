@@ -1,8 +1,9 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "xml.h"
 #include <string.h>
+#include <libxml/parser.h>
 #include "../db_access/connection.h"
 
 /* @ brief : validating bmd request
@@ -19,22 +20,45 @@
 *    types, etc. 
 */
 
-int is_bmd_valid(bmd * b)
-{  
-   int val =1;
-    if(validate_xml_file(b)){
-        int id =active_routes_from_source(b->envelope->Sender,
-                                           b->envelope->Destination,b->envelope->MessageType);
+
+
+
+
+
+
+
+int  is_bmd_valid(bmd  * bd)
+{
+   
+
+   char * sender=bd->envelope->Sender;
+   char * destination=bd->envelope->Destination;
+   char * message_type= bd->envelope->MessageType;
+   
+
+
+    if(validate_xml_file(bd)){
+        int id =active_routes_from_source(sender,destination,message_type);                                 
         if(id > 0 ){
-          if(check_id_in_transform_config(id) &&  check_id_in_transport_config(id)){
-             if(strlen(b->payload) <= (5*1024*1024) ) {
-               return val;
-             }
+             if(check_id_in_transform_config(id) >=0  &&  check_id_in_transport_config(id) >=0 ){
+              char * file = xml_to_json(bd);
+              if(find_size(file) <= MAX_SIZE)
+               return 1;
+            } 
           }
         }     
-    }
+   
     return 0;                                         
 }
+
+
+
+/* @ brief: validating bmd.
+ * checking whether xml file consists of appropriate elements.
+ * if it contains returns 1
+ * else return 0
+*/
+
 
 
 int validate_xml_file( bmd * bmd_file)
@@ -92,19 +116,6 @@ int validate_xml_file( bmd * bmd_file)
 
   return 1;
 }
-
-
-/**
- * TODO: This is to be implemented separately.
- */
-bmd * parse_bmd_xml(char * filepath)
-{
-   bmd  * bd = (bmd*) malloc (sizeof(bmd));
-   bd->envelope=  extract_envelope(filepath);
-   bd->payload= extract_payload(filepath);
-   return bd;
-}
-
 
 
 
