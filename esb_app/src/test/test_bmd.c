@@ -220,6 +220,68 @@ parse_bmd_xml_tear_down(void *fixture)
 
 }
 
+
+
+
+/* Test setup function creates bmd and returns it */
+static void *
+parse_bmd_xml1_setup(const MunitParameter params[], void *user_data)
+{
+  char *file = "../bmd_extract/dum1.xml";
+  bmd *b = parse_bmd_xml(file);
+  return b;
+}
+
+
+/* Test function */
+static MunitResult
+test_parse_bmd_xml1(const MunitParameter params[], void *fixture)
+{
+  bmd *test_bmd = (bmd *)fixture;
+  // printf("hhghgh %s\n\n",test_bmd->envelope->MessageID);
+
+  //munit_assert_null(test_bmd->envelope->MessageID);
+  munit_assert_null(test_bmd->envelope->MessageType);
+  munit_assert_null(test_bmd->envelope->Sender);
+  munit_assert_null(test_bmd->envelope->Destination);
+  munit_assert_null(test_bmd->envelope->CreationDateTime);
+  munit_assert_null(test_bmd->envelope->ReferenceID);
+  munit_assert_null(test_bmd->envelope->Signature);
+  munit_assert_null(test_bmd->payload);
+
+  return MUNIT_OK;
+}
+
+static void
+parse_bmd_xml1_tear_down(void *fixture)
+{
+  bmd *b = (bmd *)fixture;
+
+  free(b->envelope);
+  free(b->payload);
+  free(b);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Put all unit tests here. */
 MunitTest bmd_tests[] = {
     {
@@ -227,6 +289,16 @@ MunitTest bmd_tests[] = {
         test_parse_bmd_xml,      /* test function */
         parse_bmd_xml_setup,     /* setup function for the test */
         parse_bmd_xml_tear_down, /* tear_down */
+        MUNIT_TEST_OPTION_NONE,  /* options */
+        NULL                     /* parameters */
+    },
+
+
+     {
+        "/parse_bmd_xml1_test",   /* name */
+        test_parse_bmd_xml1,      /* test function */
+        parse_bmd_xml1_setup,     /* setup function for the test */
+        parse_bmd_xml1_tear_down, /* tear_down */
         MUNIT_TEST_OPTION_NONE,  /* options */
         NULL                     /* parameters */
     },

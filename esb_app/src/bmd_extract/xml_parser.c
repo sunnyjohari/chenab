@@ -64,7 +64,7 @@ void extract_envelope_utils(xmlNode * node, bmd_envelope * bm)
                     bm->MessageID = malloc((n+1)* sizeof(char));
                     strcpy(bm->MessageID,(char *) xmlNodeGetContent(node));
                     if(strcmp(bm->MessageID, "") ==0){
-                       bm->MessageType=NULL;  
+                     //  bm->MessageID=NULL;  
                     } 
                 }
                 /* MesageType*/
@@ -306,8 +306,12 @@ int validate_xml_file( bmd * bmd_file)
 
   /* assigning memoryfor JSON file*/
   char * file_name = malloc((strlen("payload_") + strlen(bd->envelope->MessageID)+ strlen(".json")+1)* sizeof(char));
-  char * file_index = malloc((strlen(bd->envelope->MessageID)) * sizeof(char));
+  char * file_index ;
+  
+
+     file_index = malloc((strlen(bd->envelope->MessageID)) * sizeof(char));
   file_index = bd->envelope->MessageID;
+  
 
   /* creating .json file*/
   sprintf(file_name,"payload_%s.json",file_index);
