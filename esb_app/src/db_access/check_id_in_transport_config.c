@@ -6,13 +6,6 @@
 
 #define SELECT_SAMPLE "SELECT id,route_id,config_key,config_value FROM transport_config WHERE route_id= ?" 
 
-void finish_with_error1(MYSQL *con) {
-
-  fprintf(stderr, "Error [%d]: %s \n",mysql_errno(con),mysql_error(con));
-  mysql_close(con);
-
-  exit(1);        
-}
 
 #define STRING_SIZE 200
 
@@ -38,30 +31,31 @@ int check_id_in_transport_config(int route_id){
    */
   if (mysql == NULL) {
       fprintf(stderr, "mysql_init() failed\n");
-      exit(1);
+      return -1;
   }  
   
   /* Check if connection is 
    * properly established.
    */
   if (mysql_real_connect(mysql, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
-   fprintf(stderr, "Error [%d]: %s \n",mysql_errno(mysql),mysql_error(mysql));
-  mysql_close(mysql);
+	   fprintf(stderr, "Error [%d]: %s \n",mysql_errno(mysql),mysql_error(mysql));
+	   mysql_close(mysql);
+	   return -1;
     }   
 
 
  stmt = mysql_stmt_init(mysql);
  if (!stmt)
  {
-  fprintf(stderr, " mysql_stmt_init(), out of memory\n");
-  exit(0);
+	  fprintf(stderr, " mysql_stmt_init(), out of memory\n");
+	  return -1;
  }
   /* Prepare a SELECT query to fetch data from routes_table */
  if (mysql_stmt_prepare(stmt, SELECT_SAMPLE, strlen(SELECT_SAMPLE)))
  {
   fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+  return -1;
  }
  //fprintf(stdout, " prepare, SELECT successful\n");
 
@@ -72,7 +66,7 @@ int check_id_in_transport_config(int route_id){
  if (param_count != 1) /* validate parameter count */
  {
   fprintf(stderr, " invalid parameter count returned by MySQL\n");
-  exit(0);
+   return -1;
  }
 
 
@@ -82,7 +76,7 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr," mysql_stmt_result_metadata(), returned no meta information\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
 
  /* Get total columns in the query */
@@ -91,7 +85,7 @@ int check_id_in_transport_config(int route_id){
  if (column_count != 4) /* validate column count */
  {
   fprintf(stderr, " invalid column count returned by MySQL\n");
-  exit(0);
+   return -1;
  }
 
  memset(input_bind, 0, sizeof(input_bind));
@@ -109,7 +103,7 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_bind_param() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
 
 
@@ -119,7 +113,7 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_execute,  failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
 
  /* Bind the result buffers for all 3 columns before fetching them */
@@ -155,7 +149,7 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_bind_result() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
 
  /* Now buffer all results to client */
@@ -163,7 +157,7 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " mysql_stmt_store_result() failed\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
 
  /* Fetch all rows */
@@ -195,9 +189,9 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " failed while closing the statement\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
-   return small_data[0];
+   return 1;
 }
 
  /* Validate rows fetched */
@@ -211,7 +205,7 @@ int check_id_in_transport_config(int route_id){
  {
   fprintf(stderr, " failed while closing the statement\n");
   fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
-  exit(0);
+   return -1;
  }
  
  mysql_close(mysql);  

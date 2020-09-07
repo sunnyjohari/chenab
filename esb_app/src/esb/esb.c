@@ -23,7 +23,7 @@ int queue_the_request(bmd *b) {
     int rc = insert_to_esb_request(b->envelope->Sender,
     b->envelope->Destination,b->envelope->MessageType,
     b->envelope->ReferenceID,b->envelope->MessageID,
-    "Routes","RECEIVED","received successfully",b->envelope->CreationDateTime);
+    "","RECEIVED","",b->envelope->CreationDateTime);
     if(rc ==1)
     return success;
 }

@@ -54,7 +54,7 @@ return buffer;
 static void *
 xml_to_json_setup(const MunitParameter params[], void *user_data)
 {
-  char *file = "../bmd_extract/dum.xml";
+  char *file = "../bmd_extract/test_files/dum.xml";
   bmd *bd = parse_bmd_xml(file);
   char * file_created = xml_to_json(bd);
   printf("%s\n",file_created);
@@ -86,7 +86,7 @@ xml_to_json_tear_down(void *fixture)
 static void *
 xml_to_json1_setup(const MunitParameter params[], void *user_data)
 {
-  char *file = "../bmd_extract/dum1.xml";
+  char *file = "../bmd_extract/test_files/dum1.xml";
   bmd *bd = parse_bmd_xml(file);
   char * file_created = xml_to_json(bd);
   printf("%s\n",file_created);
@@ -137,7 +137,7 @@ xml_to_json1_tear_down(void *fixture)
 static void *
 is_bmd_valid_setup(const MunitParameter params[], void *user_data)
 {
-  char *file = "../bmd_extract/dum.xml";
+  char *file = "../bmd_extract/test_files/dum.xml";
   bmd *b = parse_bmd_xml(file);
   return b;
 }
@@ -162,7 +162,7 @@ is_bmd_valid_tear_down(void *fixture)
 static void *
 parse_bmd_xml_setup(const MunitParameter params[], void *user_data)
 {
-  char *file = "../bmd_extract/dum.xml";
+  char *file = "../bmd_extract/test_files/dum.xml";
   bmd *b = parse_bmd_xml(file);
   return b;
 }
@@ -227,7 +227,7 @@ parse_bmd_xml_tear_down(void *fixture)
 static void *
 parse_bmd_xml1_setup(const MunitParameter params[], void *user_data)
 {
-  char *file = "../bmd_extract/dum1.xml";
+  char *file = "../bmd_extract/test_files/dum1.xml";
   bmd *b = parse_bmd_xml(file);
   return b;
 }
