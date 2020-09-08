@@ -57,7 +57,8 @@ int process_esb_request(char* bmd_file_path) {
     {
         // Step 3:
         status = queue_the_request(b);
-        printf("Queued..!");
+       if(status==1) printf("Queued..!\n");
+       else          printf("NOT queued!\n");
     }
     
     return status;
@@ -70,6 +71,7 @@ int main () {
         printf("Status[%d]: Request processing failed",status);
         return EXIT_FAILURE;
         }
+        printf("Status[%d]: Request processing sucess",status);
       
     return EXIT_SUCCESS;
 }
