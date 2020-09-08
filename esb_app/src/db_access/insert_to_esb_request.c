@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <mysql/mysql.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdlib.h>
+#include <string.h>
 #include "connection.h"
-#include<time.h>
+#include <time.h>
 
 #define STRING_SIZE 1000
 
@@ -48,10 +48,11 @@ int insert_to_esb_request ( char * sender_id, char * dest_id, char * message_typ
       finish_with_errorss(conn);
   }  
   
-/* Check if connection is 
-* properly established.
-*/
-     if (mysql_real_connect(conn, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
+ /* Check if connection is 
+ * properly established.
+ */
+ 
+ if (mysql_real_connect(conn, SERVER,USER,PASSWORD,DATABASE,PORT,UNIX_SOCKET,FLAG) == NULL) {
       finish_with_errorss(conn);
  }    
 

@@ -21,9 +21,18 @@
 int insert_to_esb_request(char *sender_id,char *dest_id,
 char *message_type,char *reference_id,char *message_id, 
 char *data_location, char *status,char *status_details,char *received_on);
+
 int active_routes_from_source(char *sender,char* destination,char *message_type);
+
 int check_id_in_transform_config(int route_id);
+
 int check_id_in_transport_config(int route_id);
+ 
+int select_status(char * status);
+
+int  update_esb_request(int index, char * status);
+
+ 
 
 #endif
 
