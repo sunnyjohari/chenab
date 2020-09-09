@@ -66,6 +66,26 @@ void deQueue(task_queue* q)
  * whenver we take the node from the queue we dequeue from the queue
  *
  */
+ 
+ /*
+ task_node * task_queue_process(task_queue * q)
+{
+    task_node * qn = q->front;
+
+    while(qn!=NULL){
+      if(!(strcmp(qn->status , "available"))){    
+         qn->processing_attempts+=1;
+         qn->status="processing";
+         return qn;
+      }
+      qn=qn->next;
+    }
+    return NULL;
+}
+  
+*/
+
+
 task_node * task_queue_process(task_queue * q)
 {
     task_node * qn = q->front;
