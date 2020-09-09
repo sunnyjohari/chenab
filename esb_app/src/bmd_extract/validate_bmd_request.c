@@ -6,7 +6,8 @@
 #include <libxml/parser.h>
 #include "../db_access/connection.h"
 
-/* @ brief : validating bmd request
+/**********************************************************************************************
+*  @ brief : validating bmd request
 *  input : filepath output yes/no
 *  validating bmd request under 4 conditions
 * 1.The mandatory values (Sender, Destination, Message Type, etc.) must be present in the
@@ -18,10 +19,8 @@
 * 4. We will also check for some upper limit on the payload size. For example, the payload
 *    larger than 5MB may not be allowed, or are allowed only for certain senders and message
 *    types, etc. 
-*/
-
-
-
+*
+************************************************************************************************/
 
 
 
@@ -53,8 +52,8 @@ int  is_bmd_valid(bmd  * bd)
 
 
 
-/* @ brief: validating bmd.
- * checking whether xml file consists of appropriate elements.
+/* @ brief: validating bmd xml .
+ * checking whether xml file consists of all appropriate elements.
  * if it contains returns 1
  * else return 0
 */
