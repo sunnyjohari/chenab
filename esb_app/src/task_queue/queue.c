@@ -4,10 +4,10 @@
 #include <string.h>
   
 // A utility function to create a new linked list node. 
-task_node* newNode(int k,int processing_attempts, char * status) 
+task_node* newNode(task_node_info * k,int processing_attempts, char * status) 
 { 
     task_node * temp = (task_node *)malloc(sizeof(task_node)); 
-    temp->id = k; 
+    temp->task_info = k; 
     temp->processing_attempts=processing_attempts;
     temp->status=status;
     temp->next = NULL; 
@@ -23,7 +23,7 @@ task_queue* createQueue()
 } 
   
 // The function to add a key k to q 
-void enQueue(task_queue* q, int k,int processing_attempts, char * status) 
+void enQueue(task_queue* q, task_node_info * k ,int processing_attempts, char * status) 
 { 
     // Create a new LL node 
    task_node* temp = newNode(k,processing_attempts,status); 
@@ -60,19 +60,22 @@ void deQueue(task_queue* q)
 
 
 
-// processing  queue node from worker pool
+/**
+ *  @ brief processing task_queue
+ * 
+ * whenver we take the node from the queue we dequeue from the queue
+ *
+ */
 task_node * task_queue_process(task_queue * q)
 {
     task_node * qn = q->front;
 
-    while(qn!=NULL){
       if(!(strcmp(qn->status , "available"))){    
          qn->processing_attempts+=1;
          qn->status="processing";
+         dequeue(q);
          return qn;
       }
-      qn=qn->next;
-    }
     return NULL;
 }
   
