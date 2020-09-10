@@ -18,6 +18,20 @@
 #define UNIX_SOCKET NULL   /*unix socket*/
 #define FLAG 0             /*last parameter to mysql_real_connect*/
 
+
+typedef struct transport_config_data
+{
+    char * config_key;
+    char * config_value;
+}transport_config;
+
+typedef struct transform_config_data
+{
+    char * config_key;
+    char * config_value;
+}transform_config;
+
+
 int insert_to_esb_request(char *sender_id,char *dest_id,
 char *message_type,char *reference_id,char *message_id, 
 char *data_location, char *status,char *status_details,char *received_on);
