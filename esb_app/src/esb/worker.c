@@ -62,10 +62,20 @@ void *poll_database_for_new_requets(void *vargp)
                     return NULL;
                }
                
+               printf("Applying transformation and transporting steps.\n");
+               transport_config * tp = fetch_transport_config_key and value(tn->id);
+               transform_config * tf = fetch_transform_config_key and value(tn->id);
                          
+               if(tp && tf ){
                
+                /** 
+                 * TODO:  Transforming and transporting steps using adapter
+                 *
+                 */
+               
+               }
               
-            printf("Applying transformation and transporting steps.\n");
+
         }
         /**
          * Sleep for polling interval duration, say, 5 second.
