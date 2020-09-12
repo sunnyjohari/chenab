@@ -38,7 +38,9 @@ void enQueue(task_queue* q, task_node_info * k ,int processing_attempts, char * 
     q->rear->next = temp; 
     q->rear = temp; 
 } 
-  
+
+
+/*  
 // Function to remove a key from given queue q 
 void deQueue(task_queue* q) 
 { 
@@ -57,6 +59,56 @@ void deQueue(task_queue* q)
   
     free(temp); 
 } 
+*/
+
+
+void deQueue(task_queue* q, int k) 
+{ 
+    // If queue is empty, return NULL. 
+    if (q->front == NULL) 
+        return; 
+  
+    // Store previous front and move front one node ahead 
+
+    // Store head node 
+    task_node * temp = q->front;
+    task_node *prev; 
+  
+    // If head node itself holds the key to be deleted 
+    if (temp != NULL && temp->id == k) 
+    { 
+        q->front = temp->next;   // Changed head 
+        free(temp);               // free old head 
+        return; 
+    } 
+  
+    // Search for the key to be deleted, keep track of the 
+    // previous node as we need to change 'prev->next' 
+    while (temp != NULL && temp->id != k) 
+    { 
+        prev = temp; 
+        temp = temp->next; 
+    } 
+  
+    // If key was not present in linked list 
+    if (temp == NULL) return; 
+  
+    // Unlink the node from linked list 
+    prev->next = temp->next; 
+  
+    free(temp);  // Free memory 
+
+} 
+
+
+
+void print(task_queue * q)
+{
+    for(task_node * temp=q->front ;temp!=NULL;temp=temp->next)
+    {
+       printf("Queue Front :  %d %s \n",temp->processing_attempts,temp->status); 
+    }
+}
 
 
 

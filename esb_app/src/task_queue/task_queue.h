@@ -30,8 +30,11 @@ static task_queue* q;
 
 void enQueue(task_queue* q, int k,int processing_attempts, char * status); 
 
-void deQueue(task_queue * q);
+void deQueue(task_queue * q,int k);
 
 task_queue * createQueue ();
 
 task_node * task_queue_process(task_queue * q);
+
+void print(task_queue * q);
+
