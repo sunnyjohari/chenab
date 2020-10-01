@@ -191,6 +191,7 @@ transform_config *  fetch_transform_config_key_and_value(int route_id){
 	  {
 	    fprintf(stderr, " failed while closing the statement\n");
 	    fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+		  free(tf);
 	    return NULL;
 	  }
 	  return tf;
@@ -208,6 +209,7 @@ transform_config *  fetch_transform_config_key_and_value(int route_id){
 	{
 	  fprintf(stderr, " failed while closing the statement\n");
 	  fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+		free(tf);
 	return NULL;
 	}
 	free(tf);
