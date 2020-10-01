@@ -210,7 +210,7 @@ transform_config *  fetch_transform_config_key_and_value(int route_id){
 	  fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
 	return NULL;
 	}
-	
+	free(tf);
 	return NULL;
 }	
 
