@@ -253,6 +253,7 @@ char * extract_payload(char * filepath)
         printf("fopen failed, errno = %d\n", errno);
     }
     fprintf(fp,"{\n \"Payload\":\"%s\"\n}",payload);
+	 free(file_index);
         fclose(fp);
     return strdup(file_name);
  
